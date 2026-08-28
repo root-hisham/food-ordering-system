@@ -17,9 +17,14 @@ export function OrderStatusSelect({
     <select
       defaultValue={currentStatus}
       disabled={isPending}
-      onChange={(e) =>
-        startTransition(() => overrideOrderStatusAction(orderId, e.target.value as OrderStatus))
-      }
+      onChange={(e) => {
+        startTransition(() => {
+          void overrideOrderStatusAction(
+            orderId,
+            e.target.value as OrderStatus
+          );
+        });
+      }}
       className="rounded-lg border border-neutral-300 px-2 py-1 text-xs capitalize"
     >
       {ALL_STATUSES.map((s) => (
@@ -30,3 +35,4 @@ export function OrderStatusSelect({
     </select>
   );
 }
+```
