@@ -1,5 +1,5 @@
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
-import type { CreateStallInput } from "@/lib/validation/stall";
+import type { CreateStallInput, UpdateStallInput } from "@/lib/validation/stall";
 
 /**
  * Creates a stall AND its owner's login account together — this is
@@ -95,5 +95,29 @@ export async function listStallsWithOwners() {
 export async function setStallStatus(stallId: string, status: "active" | "inactive") {
   const supabase = createClient();
   const { error } = await supabase.from("stalls").update({ status }).eq("id", stallId);
+  return { error: error?.message };
+}
+
+export async function getStallById(stallId: string) {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("stalls")
+    .select("id, name, category, description, logo_url, status")
+    .eq("id", stallId)
+    .single();
+  return data;
+}
+
+export async function updateStall(stallId: string, input: UpdateStallInput) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("stalls")
+    .update({
+      name: input.stallName,
+      category: input.category,
+      description: input.description || null,
+      logo_url: input.logoUrl || null,
+    })
+    .eq("id", stallId);
   return { error: error?.message };
 }

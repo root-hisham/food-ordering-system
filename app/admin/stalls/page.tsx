@@ -53,9 +53,12 @@ export default async function AdminStallsPage() {
                       {stall.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <ToggleStallStatusButton stallId={stall.id} status={stall.status} />
-                  </td>
+                    <td className="px-4 py-3 text-right">
+                      <Link href={`/admin/stalls/${stall.id}/edit`} className="mr-3 text-sm font-medium text-neutral-600 hover:text-brand-600">
+                        Edit
+                      </Link>
+                      <ToggleStallStatusButton stallId={stall.id} status={stall.status} />
+                    </td>
                 </tr>
               ))}
             </tbody>

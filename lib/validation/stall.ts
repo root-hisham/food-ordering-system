@@ -12,3 +12,12 @@ export const createStallSchema = z.object({
 });
 
 export type CreateStallInput = z.infer<typeof createStallSchema>;
+
+export const updateStallSchema = z.object({
+  stallName: z.string().min(2, "Stall name is too short"),
+  category: z.string().min(1, "Enter a category"),
+  description: z.string().optional(),
+  logoUrl: z.string().url().optional().or(z.literal("")),
+});
+
+export type UpdateStallInput = z.infer<typeof updateStallSchema>;
