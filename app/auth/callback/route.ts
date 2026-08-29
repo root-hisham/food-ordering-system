@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -20,7 +20,14 @@ export async function GET(request: Request) {
     );
   }
 
-  const { data: existingProfile } = await supabase
+  // Service-role client for this part specifically: RLS intentionally
+  // has no self-insert policy on profiles (normal registration also
+  // goes through service role for the same reason). The role here is
+  // hardcoded to "customer" in code, never taken from client input,
+  // so this stays safe — Google sign-in can only ever create customers.
+  const admin = createServiceRoleClient();
+
+  const { data: existingProfile } = await admin
     .from("profiles")
     .select("id")
     .eq("id", data.user.id)
@@ -33,7 +40,7 @@ export async function GET(request: Request) {
       data.user.email ||
       "Customer";
 
-    const { error: profileError } = await supabase.from("profiles").insert({
+    const { error: profileError } = await admin.from("profiles").insert({
       id: data.user.id,
       role: "customer",
       full_name: fullName,
@@ -45,7 +52,7 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(profileError.message)}`);
     }
 
-    const { error: customerError } = await supabase.from("customers").insert({ id: data.user.id });
+    const { error: customerError } = await admin.from("customers").insert({ id: data.user.id });
     if (customerError) {
       console.error("Customer row creation failed:", customerError.message);
     }
