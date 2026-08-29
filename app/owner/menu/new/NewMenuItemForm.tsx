@@ -5,6 +5,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { createMenuItemAction, type MenuItemState } from "../actions";
+import { compressImage } from "@/lib/utils/compress-image";
 
 const initialState: MenuItemState = {};
 
@@ -39,15 +40,19 @@ export function NewMenuItemForm({ categories }: { categories: { id: string; name
     if (!file) return;
     setUploading(true);
 
-    const supabase = createClient();
-    const path = `menu-items/${Date.now()}-${file.name}`;
-    const { error } = await supabase.storage.from("public-images").upload(path, file);
+    try {
+      const compressed = await compressImage(file);
+      const supabase = createClient();
+      const path = `menu-items/${Date.now()}-${compressed.name}`;
+      const { error } = await supabase.storage.from("public-images").upload(path, compressed);
 
-    if (!error) {
-      const { data } = supabase.storage.from("public-images").getPublicUrl(path);
-      setImageUrl(data.publicUrl);
+      if (!error) {
+        const { data } = supabase.storage.from("public-images").getPublicUrl(path);
+        setImageUrl(data.publicUrl);
+      }
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
   };
 
   return (

@@ -5,6 +5,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { createStallAction, type CreateStallState } from "../actions";
+import { compressImage } from "@/lib/utils/compress-image";
 
 const initialState: CreateStallState = {};
 
@@ -42,19 +43,24 @@ export default function NewStallPage() {
     setUploading(true);
     setUploadError("");
 
-    const supabase = createClient();
-    const path = `stalls/${Date.now()}-${file.name}`;
-    const { error } = await supabase.storage.from("public-images").upload(path, file);
+    try {
+      const compressed = await compressImage(file);
+      const supabase = createClient();
+      const path = `stalls/${Date.now()}-${compressed.name}`;
+      const { error } = await supabase.storage.from("public-images").upload(path, compressed);
 
-    if (error) {
-      setUploadError("Logo upload failed. You can still create the stall without one.");
+      if (error) {
+        setUploadError("Logo upload failed. You can still create the stall without one.");
+        return;
+      }
+
+      const { data } = supabase.storage.from("public-images").getPublicUrl(path);
+      setLogoUrl(data.publicUrl);
+    } catch {
+      setUploadError("Could not process that image — try a different photo.");
+    } finally {
       setUploading(false);
-      return;
     }
-
-    const { data } = supabase.storage.from("public-images").getPublicUrl(path);
-    setLogoUrl(data.publicUrl);
-    setUploading(false);
   };
 
   return (

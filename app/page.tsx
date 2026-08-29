@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { listActiveStalls } from "@/services/browse.service";
 
@@ -28,7 +29,13 @@ export default async function HomePage() {
               className="flex gap-3 rounded-xl border border-neutral-200 bg-white p-3"
             >
               {stall.logo_url ? (
-                <img src={stall.logo_url} alt={stall.name} className="h-16 w-16 rounded-lg object-cover" />
+                <Image
+                  src={stall.logo_url}
+                  alt={stall.name}
+                  width={64}
+                  height={64}
+                  className="h-16 w-16 rounded-lg object-cover"
+                />
               ) : (
                 <div className="h-16 w-16 rounded-lg bg-neutral-100" />
               )}
