@@ -32,7 +32,11 @@ export function OrderActionButtons({
       {nextStatus && (
         <button
           disabled={isPending}
-          onClick={() => startTransition(() => advanceOrderStatusAction(orderId, nextStatus))}
+          onClick={() =>
+            startTransition(() => {
+              void advanceOrderStatusAction(orderId, nextStatus);
+            })
+          }
           className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
         >
           {ACTION_LABEL[nextStatus]}
@@ -41,7 +45,11 @@ export function OrderActionButtons({
       {canCancel && (
         <button
           disabled={isPending}
-          onClick={() => startTransition(() => cancelOrderAction(orderId))}
+          onClick={() =>
+            startTransition(() => {
+              void cancelOrderAction(orderId);
+            })
+          }
           className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
         >
           Cancel
