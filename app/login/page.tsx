@@ -22,7 +22,7 @@ function SubmitButton() {
   );
 }
 
-export default function LoginPage({ searchParams }: { searchParams: { redirect?: string } }) {
+export default function LoginPage({ searchParams }: { searchParams: { redirect?: string; error?: string } }) {
   const [state, formAction] = useFormState(login, initialState);
   const router = useRouter();
   const redirectTo = searchParams.redirect;
