@@ -1,9 +1,33 @@
 "use client";
 
-export function playNotificationSound() {
+let sharedContext: AudioContext | null = null;
+
+/**
+ * Browsers require a real user gesture (tap/click) before audio can
+ * play — a WebSocket event from Realtime doesn't count as one, so a
+ * beep triggered directly inside the realtime handler can be
+ * silently blocked. Call this once on the first tap anywhere on the
+ * page to "unlock" a reusable AudioContext ahead of time.
+ */
+export function unlockAudio() {
+  if (sharedContext) return;
   try {
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    const ctx = new AudioContextClass();
+    sharedContext = new AudioContextClass();
+    const buffer = sharedContext.createBuffer(1, 1, 22050);
+    const source = sharedContext.createBufferSource();
+    source.buffer = buffer;
+    source.connect(sharedContext.destination);
+    source.start(0);
+  } catch {
+    // Ignore — playNotificationSound will just no-op later.
+  }
+}
+
+export function playNotificationSound() {
+  try {
+    const ctx = sharedContext ?? new (window.AudioContext || (window as any).webkitAudioContext)();
+    if (ctx.state === "suspended") ctx.resume();
     const now = ctx.currentTime;
 
     [0, 0.15].forEach((offset, i) => {

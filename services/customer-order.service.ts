@@ -85,7 +85,7 @@ export async function listCustomerHistory(customerId: string) {
     .from("orders")
     .select("id, order_number, status, total, created_at, stalls(name)")
     .eq("customer_id", customerId)
-    .in("status", ["completed", "cancelled"])
+    .in("status", ["pending", "accepted", "ready"])
     .order("created_at", { ascending: false });
 
   return (data ?? []).map((o: any) => ({

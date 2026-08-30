@@ -32,17 +32,18 @@ export function OrderRealtimeListener({ userId }: { userId: string }) {
         async (payload) => {
           const newStatus = payload.new.status as string;
 
-          // Refreshes whatever Server Component page is currently
-          // open (order list, order detail, history) — this is what
-          // eliminates the need to manually reload anywhere.
-          router.refresh();
-
           if (newStatus === "ready") {
             const { data: order } = await supabase
               .from("orders")
               .select("order_number, stalls(name)")
               .eq("id", payload.new.id)
               .single();
+
+            setReadyOrder({
+              id: payload.new.id,
+              orderNumber: order?.order_number ?? "",
+              stallName: (order as any)?.stalls?.name ?? "the stall",
+            });
 
             if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
             playNotificationSound();
@@ -52,13 +53,9 @@ export function OrderRealtimeListener({ userId }: { userId: string }) {
                 body: `Your order ${order?.order_number ?? ""} is ready for pickup.`,
               });
             }
-
-            setReadyOrder({
-              id: payload.new.id,
-              orderNumber: order?.order_number ?? "",
-              stallName: (order as any)?.stalls?.name ?? "the stall",
-            });
           }
+
+          router.refresh();
         }
       )
       .subscribe();
