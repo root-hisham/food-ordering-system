@@ -6,7 +6,6 @@ import type { OrderStatus } from "@/types/order";
 
 const ACTION_LABEL: Partial<Record<OrderStatus, string>> = {
   accepted: "Accept Order",
-  cooking: "Start Cooking",
   ready: "Mark Ready",
   completed: "Complete",
 };
@@ -21,7 +20,7 @@ export function OrderActionButtons({
   nextStatus: OrderStatus | null;
 }) {
   const [isPending, startTransition] = useTransition();
-  const canCancel = status === "pending" || status === "accepted" || status === "cooking";
+  const canCancel = status === "pending" || status === "accepted" || status === "ready";
 
   if (status === "completed" || status === "cancelled") {
     return <p className="text-xs text-neutral-400">No further actions</p>;

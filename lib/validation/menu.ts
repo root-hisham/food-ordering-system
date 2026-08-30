@@ -12,3 +12,6 @@ export const createMenuItemSchema = z.object({
   imageUrl: z.string().url().optional().or(z.literal("")),
   isVeg: z.coerce.boolean(),
 });
+
+export const updateMenuItemSchema = createMenuItemSchema;
+export type UpdateMenuItemInput = z.infer<typeof updateMenuItemSchema>;

@@ -16,7 +16,6 @@ export default async function OwnerDashboardPage() {
     { label: "Today's Orders", value: stats.todayOrders },
     { label: "Today's Sales", value: `₹${stats.todaySales.toFixed(2)}` },
     { label: "Pending", value: stats.pendingOrders },
-    { label: "Cooking", value: stats.cookingOrders },
     { label: "Ready", value: stats.readyOrders },
     { label: "Completed", value: stats.completedOrders },
     { label: "Total Orders", value: stats.totalOrders },

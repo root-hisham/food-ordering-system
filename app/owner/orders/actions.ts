@@ -9,7 +9,6 @@ import type { OrderStatus } from "@/types/order";
 
 const NOTIFICATION_FOR_STATUS: Partial<Record<OrderStatus, NotificationType>> = {
   accepted: "order_accepted",
-  cooking: "order_cooking",
   ready: "order_ready",
   completed: "order_completed",
   cancelled: "order_cancelled",

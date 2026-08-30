@@ -78,3 +78,29 @@ export async function deleteMenuItem(itemId: string) {
   const { error } = await supabase.from("menu_items").delete().eq("id", itemId);
   return { error: error?.message };
 }
+
+export async function getMenuItemById(itemId: string) {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("menu_items")
+    .select("id, name, description, price, image_url, is_veg, category_id")
+    .eq("id", itemId)
+    .single();
+  return data;
+}
+
+export async function updateMenuItem(itemId: string, input: MenuItemInput) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("menu_items")
+    .update({
+      name: input.name,
+      description: input.description || null,
+      price: input.price,
+      category_id: input.categoryId || null,
+      image_url: input.imageUrl || null,
+      is_veg: input.isVeg,
+    })
+    .eq("id", itemId);
+  return { error: error?.message };
+}

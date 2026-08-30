@@ -24,6 +24,9 @@ export function MenuItemRow({ item }: { item: any }) {
           <p className="font-semibold">₹{Number(item.price).toFixed(2)}</p>
         </div>
         <div className="mt-2 flex items-center gap-3 text-sm">
+          <a href={`/owner/menu/${item.id}/edit`} className="font-medium text-brand-600 hover:text-brand-700">
+            Edit
+          </a>
           <button
             disabled={isPending}
             onClick={() => startTransition(() => toggleMenuItemAvailabilityAction(item.id, item.is_available))}

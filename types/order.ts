@@ -1,7 +1,6 @@
 export type OrderStatus =
   | "pending"
   | "accepted"
-  | "cooking"
   | "ready"
   | "completed"
   | "cancelled";
@@ -9,7 +8,6 @@ export type OrderStatus =
 export const ALL_STATUSES: OrderStatus[] = [
   "pending",
   "accepted",
-  "cooking",
   "ready",
   "completed",
   "cancelled",

@@ -14,11 +14,10 @@ interface OrderDetail {
   items: { item_name: string; quantity: number; unit_price: number; subtotal: number }[];
 }
 
-const STEPS: OrderStatus[] = ["pending", "accepted", "cooking", "ready", "completed"];
+const STEPS: OrderStatus[] = ["pending", "accepted", "ready", "completed"];
 const STEP_LABEL: Record<OrderStatus, string> = {
   pending: "Order Placed",
   accepted: "Accepted",
-  cooking: "Cooking",
   ready: "Ready",
   completed: "Completed",
   cancelled: "Cancelled",

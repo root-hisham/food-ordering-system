@@ -4,6 +4,7 @@ import { getOwnerStallId } from "@/lib/auth/stall";
 import { listOrdersForStall, nextStatusFor } from "@/services/order.service";
 import { ALL_STATUSES, type OrderStatus } from "@/types/order";
 import { OrderActionButtons } from "./OrderActionButtons";
+import { OwnerOrdersRealtimeListener } from "@/components/owner/OwnerOrdersRealtimeListener";
 
 export default async function OwnerOrdersPage({
   searchParams,
@@ -22,6 +23,8 @@ export default async function OwnerOrdersPage({
 
   return (
     <div>
+      <OwnerOrdersRealtimeListener stallId={stallId} />
+
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-semibold">Orders</h1>
         <div className="flex flex-wrap gap-2 text-sm">

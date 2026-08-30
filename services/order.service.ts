@@ -100,8 +100,7 @@ export async function listOrdersForStall(stallId: string, status?: OrderStatus) 
 
 const NEXT_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
   pending: "accepted",
-  accepted: "cooking",
-  cooking: "ready",
+  accepted: "ready",
   ready: "completed",
 };
 

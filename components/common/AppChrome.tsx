@@ -3,10 +3,17 @@
 import { usePathname } from "next/navigation";
 import { BottomNav } from "./BottomNav";
 import { StickyCartBar } from "../customer/StickyCartBar";
+import { OrderRealtimeListener } from "../customer/OrderRealtimeListener";
 
 const HIDE_CHROME_PREFIXES = ["/admin", "/owner", "/login", "/register", "/post-login"];
 
-export function AppChrome({ children }: { children: React.ReactNode }) {
+export function AppChrome({
+  children,
+  customerId,
+}: {
+  children: React.ReactNode;
+  customerId?: string;
+}) {
   const pathname = usePathname();
   const hideChrome = HIDE_CHROME_PREFIXES.some((p) => pathname.startsWith(p));
 
@@ -17,6 +24,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
   return (
     <div className="pb-16">
       {children}
+      {customerId && <OrderRealtimeListener userId={customerId} />}
       <StickyCartBar />
       <BottomNav />
     </div>
