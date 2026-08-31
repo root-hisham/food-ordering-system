@@ -57,7 +57,7 @@ export async function listOrdersForStall(stallId: string, status?: OrderStatus) 
 
   let query = supabase
     .from("orders")
-    .select("id, order_number, status, total, created_at, customer_id")
+    .select("id, order_number, status, total, created_at, contact_name, contact_mobile, table_number")
     .eq("stall_id", stallId)
     .order("created_at", { ascending: false });
 
@@ -65,13 +65,6 @@ export async function listOrdersForStall(stallId: string, status?: OrderStatus) 
 
   const { data: orders, error } = await query;
   if (error || !orders) return [];
-
-  const customerIds = [...new Set(orders.map((o) => o.customer_id))];
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("id, full_name, mobile_number")
-    .in("id", customerIds);
-  const profileById = new Map((profiles ?? []).map((p) => [p.id, p]));
 
   const orderIds = orders.map((o) => o.id);
   const { data: items } = await supabase
@@ -92,8 +85,9 @@ export async function listOrdersForStall(stallId: string, status?: OrderStatus) 
     status: o.status as OrderStatus,
     total: Number(o.total),
     createdAt: o.created_at,
-    customerName: profileById.get(o.customer_id)?.full_name ?? "—",
-    customerMobile: profileById.get(o.customer_id)?.mobile_number ?? "—",
+    customerName: o.contact_name ?? "—",
+    customerMobile: o.contact_mobile ?? "—",
+    tableNumber: o.table_number,
     items: itemsByOrder.get(o.id) ?? [],
   }));
 }

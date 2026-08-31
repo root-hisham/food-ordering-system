@@ -59,6 +59,9 @@ export default async function OwnerOrdersPage({
                   <p className="font-mono text-xs text-neutral-400">{order.orderNumber}</p>
                   <p className="font-medium">{order.customerName}</p>
                   <p className="text-xs text-neutral-500">{order.customerMobile}</p>
+                  {order.tableNumber && (
+                    <p className="text-xs text-neutral-500">Table {order.tableNumber}</p>
+                  )}
                 </div>
                 <div className="text-right">
                   <p className="font-semibold">₹{order.total.toFixed(2)}</p>
