@@ -120,6 +120,23 @@ export async function advanceOrderStatus(orderId: string, nextStatus: OrderStatu
   return { error: error?.message };
 }
 
-export async function cancelOrder(orderId: string) {
-  return advanceOrderStatus(orderId, "cancelled");
+export async function completeOrderWithCode(orderId: string, code: string) {
+  const supabase = createClient();
+  const { data: order } = await supabase.from("orders").select("pickup_code").eq("id", orderId).single();
+
+  if (!order || order.pickup_code !== code) {
+    return { error: "Incorrect pickup code." };
+  }
+
+  const { error } = await supabase.from("orders").update({ status: "completed" }).eq("id", orderId);
+  return { error: error?.message };
+}
+
+export async function cancelOrder(orderId: string, reason: string) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("orders")
+    .update({ status: "cancelled", cancellation_reason: reason })
+    .eq("id", orderId);
+  return { error: error?.message };
 }

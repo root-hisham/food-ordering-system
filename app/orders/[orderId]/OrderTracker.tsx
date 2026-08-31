@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { OrderStatus } from "@/types/order";
+import { useTransition } from "react";
+import { cancelMyOrderAction } from "./actions";
 
 interface OrderDetail {
   id: string;
@@ -11,6 +13,9 @@ interface OrderDetail {
   total: number;
   createdAt: string;
   stallName: string;
+  pickupCode: string | null;
+  cancellationReason: string | null;
+  tableNumber: string | null;
   items: { item_name: string; quantity: number; unit_price: number; subtotal: number }[];
 }
 
@@ -25,6 +30,14 @@ const STEP_LABEL: Record<OrderStatus, string> = {
 
 export function OrderTracker({ initialOrder }: { initialOrder: OrderDetail }) {
   const [order, setOrder] = useState(initialOrder);
+  const [isPending, startTransition] = useTransition();
+
+  const handleCancel = () => {
+    startTransition(async () => {
+      await cancelMyOrderAction(order.id);
+    });
+  };
+
 
   useEffect(() => {
     if (typeof Notification !== "undefined" && Notification.permission === "default") {
@@ -70,9 +83,10 @@ export function OrderTracker({ initialOrder }: { initialOrder: OrderDetail }) {
       <h1 className="text-xl font-semibold">{order.stallName}</h1>
 
       {order.status === "cancelled" ? (
-        <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-600">
-          This order was cancelled.
-        </p>
+        <div className="mt-4 rounded-xl bg-red-50 p-4 text-sm text-red-700">
+          <p className="font-medium">This order was cancelled.</p>
+          {order.cancellationReason && <p className="mt-1">Reason: {order.cancellationReason}</p>}
+        </div>
       ) : (
         <div className="mt-6 space-y-3">
           {STEPS.map((step, i) => {
@@ -97,6 +111,22 @@ export function OrderTracker({ initialOrder }: { initialOrder: OrderDetail }) {
         <p className="mt-4 rounded-xl bg-green-50 p-4 text-center font-medium text-green-700">
           🎉 Your food is ready! Please pick it up.
         </p>
+      )}
+      {order.pickupCode && order.status !== "completed" && order.status !== "cancelled" && (
+        <div className="mt-4 rounded-xl border-2 border-dashed border-pink-300 bg-pink-50 p-4 text-center">
+          <p className="text-xs text-neutral-500">Show this code at pickup</p>
+          <p className="mt-1 text-3xl font-bold tracking-widest text-pink-600">{order.pickupCode}</p>
+        </div>
+      )}
+
+      {order.status === "pending" && (
+        <button
+          onClick={handleCancel}
+          disabled={isPending}
+          className="mt-4 w-full rounded-xl border border-red-300 py-3 text-sm font-medium text-red-600 disabled:opacity-50"
+        >
+          {isPending ? "Cancelling..." : "Cancel Order"}
+        </button>
       )}
 
       <div className="mt-6 rounded-xl border border-neutral-200 bg-white p-4">

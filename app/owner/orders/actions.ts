@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/session";
-import { advanceOrderStatus, cancelOrder } from "@/services/order.service";
+import { advanceOrderStatus, cancelOrder, completeOrderWithCode } from "@/services/order.service";
 import { createOrderNotification, type NotificationType } from "@/services/notification.service";
 import { createClient } from "@/lib/supabase/server";
 import type { OrderStatus } from "@/types/order";
@@ -25,7 +25,8 @@ async function notifyCustomer(orderId: string, status: OrderStatus) {
     .eq("id", orderId)
     .single();
 
-  if (order) {
+  // Guest orders have no customer_id — nothing to notify.
+  if (order?.customer_id) {
     await createOrderNotification(order.customer_id, orderId, order.order_number, type);
   }
 }
@@ -33,19 +34,23 @@ async function notifyCustomer(orderId: string, status: OrderStatus) {
 export async function advanceOrderStatusAction(orderId: string, nextStatus: OrderStatus) {
   await requireRole(["stall_owner"]);
   const result = await advanceOrderStatus(orderId, nextStatus);
-  if (!result.error) {
-    await notifyCustomer(orderId, nextStatus);
-  }
+  if (!result.error) await notifyCustomer(orderId, nextStatus);
   revalidatePath("/owner/orders");
   return result;
 }
 
-export async function cancelOrderAction(orderId: string) {
+export async function completeOrderAction(orderId: string, code: string) {
   await requireRole(["stall_owner"]);
-  const result = await cancelOrder(orderId);
-  if (!result.error) {
-    await notifyCustomer(orderId, "cancelled");
-  }
+  const result = await completeOrderWithCode(orderId, code);
+  if (!result.error) await notifyCustomer(orderId, "completed");
+  revalidatePath("/owner/orders");
+  return result;
+}
+
+export async function cancelOrderAction(orderId: string, reason: string) {
+  await requireRole(["stall_owner"]);
+  const result = await cancelOrder(orderId, reason);
+  if (!result.error) await notifyCustomer(orderId, "cancelled");
   revalidatePath("/owner/orders");
   return result;
 }
