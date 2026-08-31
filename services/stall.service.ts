@@ -29,6 +29,7 @@ export async function createStallWithOwner(input: CreateStallInput, createdBy: s
     .insert({
       name: input.stallName,
       category: input.category,
+      category_id: input.categoryId || null,
       description: input.description || null,
       logo_url: input.logoUrl || null,
       status: "active",
@@ -78,7 +79,7 @@ export async function listStallsWithOwners() {
 
   const { data: stalls, error } = await supabase
     .from("stalls")
-    .select("id, name, category, description, logo_url, status, created_at")
+    .select("id, name, category, category_id, description, logo_url, status, created_at")
     .order("created_at", { ascending: false });
 
   if (error || !stalls) return [];
@@ -102,7 +103,7 @@ export async function getStallById(stallId: string) {
   const supabase = createClient();
   const { data } = await supabase
     .from("stalls")
-    .select("id, name, category, description, logo_url, status")
+    .select("id, name, category, category_id, description, logo_url, status")
     .eq("id", stallId)
     .single();
   return data;
@@ -115,6 +116,7 @@ export async function updateStall(stallId: string, input: UpdateStallInput) {
     .update({
       name: input.stallName,
       category: input.category,
+      category_id: input.categoryId || null,
       description: input.description || null,
       logo_url: input.logoUrl || null,
     })

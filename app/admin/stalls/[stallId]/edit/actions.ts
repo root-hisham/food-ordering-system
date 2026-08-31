@@ -17,6 +17,7 @@ export async function updateStallAction(
   const parsed = updateStallSchema.safeParse({
     stallName: formData.get("stallName"),
     category: formData.get("category"),
+    categoryId: formData.get("categoryId") || undefined,
     description: formData.get("description") || undefined,
     logoUrl: formData.get("logoUrl") || undefined,
   });

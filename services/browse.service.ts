@@ -1,14 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 
-export async function listActiveStalls(search?: string) {
+export async function listActiveStalls(search?: string, categoryId?: string) {
   const supabase = createClient();
   let query = supabase
     .from("stalls")
-    .select("id, name, description, category, logo_url, status")
+    .select("id, name, description, category, category_id, logo_url, status")
     .eq("status", "active")
     .order("name");
 
   if (search) query = query.ilike("name", `%${search}%`);
+  if (categoryId) query = query.eq("category_id", categoryId);
 
   const { data } = await query;
   return data ?? [];

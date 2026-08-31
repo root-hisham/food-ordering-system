@@ -7,6 +7,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { compressImage } from "@/lib/utils/compress-image";
 import { updateStallAction, type EditStallState } from "./actions";
+import type { Category } from "@/types/category";
 
 const initialState: EditStallState = {};
 
@@ -27,13 +28,14 @@ interface StallData {
   id: string;
   name: string;
   category: string | null;
+  category_id: string | null;
   description: string | null;
   logo_url: string | null;
 }
 
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
 
-export function EditStallForm({ stall }: { stall: StallData }) {
+export function EditStallForm({ stall, categories }: { stall: StallData; categories: Category[] }) {
   const updateWithId = updateStallAction.bind(null, stall.id);
   const [state, formAction] = useFormState(updateWithId, initialState);
   const router = useRouter();
@@ -105,6 +107,21 @@ export function EditStallForm({ stall }: { stall: StallData }) {
           defaultValue={stall.category ?? ""}
           className="w-full rounded-xl border border-neutral-300 px-4 py-3"
         />
+      </div>
+      <div>
+        <label className="mb-1 block text-sm font-medium">Home page chip</label>
+        <select
+          name="categoryId"
+          defaultValue={stall.category_id ?? ""}
+          className="w-full rounded-xl border border-neutral-300 px-4 py-3"
+        >
+          <option value="">None — not tied to a chip</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
       </div>
       <div>
         <label className="mb-1 block text-sm font-medium">Description</label>

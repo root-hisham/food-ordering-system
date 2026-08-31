@@ -16,6 +16,7 @@ export async function createStallAction(
   const parsed = createStallSchema.safeParse({
     stallName: formData.get("stallName"),
     category: formData.get("category"),
+    categoryId: formData.get("categoryId") || undefined,
     description: formData.get("description") || undefined,
     logoUrl: formData.get("logoUrl") || undefined,
     ownerName: formData.get("ownerName"),
