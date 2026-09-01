@@ -1,5 +1,6 @@
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import type { CreateStallInput, UpdateStallInput } from "@/lib/validation/stall";
+import type { StallAvailability } from "@/types/stall";
 
 /**
  * Creates a stall AND its owner's login account together — this is
@@ -79,7 +80,7 @@ export async function listStallsWithOwners() {
 
   const { data: stalls, error } = await supabase
     .from("stalls")
-    .select("id, name, category, category_id, description, logo_url, status, created_at")
+    .select("id, name, category, category_id, description, logo_url, status, availability, created_at")
     .order("created_at", { ascending: false });
 
   if (error || !stalls) return [];
@@ -103,7 +104,7 @@ export async function getStallById(stallId: string) {
   const supabase = createClient();
   const { data } = await supabase
     .from("stalls")
-    .select("id, name, category, category_id, description, logo_url, status")
+    .select("id, name, category, category_id, description, logo_url, status, availability")
     .eq("id", stallId)
     .single();
   return data;
@@ -121,5 +122,18 @@ export async function updateStall(stallId: string, input: UpdateStallInput) {
       logo_url: input.logoUrl || null,
     })
     .eq("id", stallId);
+  return { error: error?.message };
+}
+
+/**
+ * Owner-only toggle: are we currently taking orders? Distinct from
+ * `status` (admin active/inactive listing control) — RLS already
+ * scopes this to the caller's own stall via "owner updates own
+ * stall" (update ... where id = auth_stall_id()), so no ownerId
+ * check is needed here beyond that policy.
+ */
+export async function setStallAvailability(stallId: string, availability: StallAvailability) {
+  const supabase = createClient();
+  const { error } = await supabase.from("stalls").update({ availability }).eq("id", stallId);
   return { error: error?.message };
 }

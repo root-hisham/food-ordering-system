@@ -1,10 +1,14 @@
 import { notFound } from "next/navigation";
 import { getStallWithMenu } from "@/services/browse.service";
 import { MenuBrowser } from "./MenuBrowser";
+import { StallAvailabilityBadge } from "@/components/customer/StallAvailabilityBadge";
 
 export default async function StallMenuPage({ params }: { params: { stallId: string } }) {
   const data = await getStallWithMenu(params.stallId);
   if (!data) notFound();
+
+  const availability = data.stall.availability ?? "open";
+  const canOrder = data.stall.status === "active" && availability === "open";
 
   return (
     <main className="mx-auto max-w-md px-4 py-6 pb-24">
@@ -15,7 +19,10 @@ export default async function StallMenuPage({ params }: { params: { stallId: str
           <div className="h-20 w-20 rounded-xl bg-neutral-100" />
         )}
         <div>
-          <h1 className="text-xl font-semibold">{data.stall.name}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-semibold">{data.stall.name}</h1>
+            {data.stall.status === "active" && <StallAvailabilityBadge availability={availability} />}
+          </div>
           <p className="text-sm text-neutral-500">{data.stall.category}</p>
           <p className="text-xs text-neutral-400">{data.stall.description}</p>
           {data.stall.status !== "active" && (
@@ -27,7 +34,8 @@ export default async function StallMenuPage({ params }: { params: { stallId: str
       <MenuBrowser
         stallId={data.stall.id}
         stallName={data.stall.name}
-        stallActive={data.stall.status === "active"}
+        canOrder={canOrder}
+        availability={availability}
         categories={data.categories}
         items={data.items}
       />

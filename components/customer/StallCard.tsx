@@ -1,15 +1,29 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import type { StallAvailability } from "@/types/stall";
 
 interface StallCardProps {
   id: string;
   name: string;
   category: string | null;
   logoUrl: string | null;
+  availability: StallAvailability;
   index?: number;
 }
 
-export function StallCard({ id, name, category, logoUrl, index = 0 }: StallCardProps) {
+const BADGE_STYLES: Record<StallAvailability, string> = {
+  open: "bg-green-50 text-green-700",
+  opening_soon: "bg-amber-50 text-amber-700",
+  closed: "bg-red-50 text-red-700",
+};
+
+const BADGE_LABEL: Record<StallAvailability, string> = {
+  open: "Open",
+  opening_soon: "Opening Soon",
+  closed: "Closed",
+};
+
+export function StallCard({ id, name, category, logoUrl, availability, index = 0 }: StallCardProps) {
   return (
     <Link
       href={`/stall/${id}`}
@@ -32,8 +46,8 @@ export function StallCard({ id, name, category, logoUrl, index = 0 }: StallCardP
       <div className="min-w-0 flex-1">
         <p className="truncate font-semibold text-neutral-900">{name}</p>
         {category && <p className="truncate text-sm text-neutral-500">{category}</p>}
-        <span className="mt-1 inline-block rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">
-          Open
+        <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${BADGE_STYLES[availability]}`}>
+          {BADGE_LABEL[availability]}
         </span>
       </div>
 

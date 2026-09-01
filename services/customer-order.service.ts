@@ -8,8 +8,38 @@ export interface PlaceOrderItem {
   quantity: number;
 }
 
+/**
+ * Shared guard: re-checked here (not just in the UI) because the
+ * cart/checkout page could be stale — the owner may have flipped
+ * to closed after the customer opened the menu. Checks status
+ * (admin active/inactive) too, since a fully-inactive stall should
+ * never take orders either.
+ */
+async function assertStallAcceptingOrders(stallId: string) {
+  const supabase = createClient();
+  const { data: stall } = await supabase
+    .from("stalls")
+    .select("status, availability")
+    .eq("id", stallId)
+    .single();
+
+  if (!stall || stall.status !== "active") {
+    return "This stall isn't available right now.";
+  }
+  if (stall.availability === "closed") {
+    return "This stall is currently closed and isn't taking orders.";
+  }
+  if (stall.availability === "opening_soon") {
+    return "This stall hasn't opened yet — please check back soon.";
+  }
+  return null;
+}
+
 export async function placeOrder(customerId: string, stallId: string, items: PlaceOrderItem[]) {
   const supabase = createClient();
+
+  const availabilityError = await assertStallAcceptingOrders(stallId);
+  if (availabilityError) return { error: availabilityError };
 
   const itemIds = items.map((i) => i.menuItemId);
   const { data: dbItems, error: fetchError } = await supabase
@@ -161,6 +191,9 @@ export async function placeOrderAsCustomer(
   contact: PlaceOrderContact
 ) {
   const supabase = createClient();
+
+  const availabilityError = await assertStallAcceptingOrders(stallId);
+  if (availabilityError) return { error: availabilityError };
 
   const itemIds = items.map((i) => i.menuItemId);
   const { data: dbItems, error: fetchError } = await supabase

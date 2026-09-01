@@ -18,6 +18,17 @@ export interface PlaceGuestOrderContact {
 export async function placeGuestOrder(stallId: string, items: PlaceOrderItem[], contact: PlaceGuestOrderContact) {
   const admin = createServiceRoleClient();
 
+  const { data: stall } = await admin.from("stalls").select("status, availability").eq("id", stallId).single();
+  if (!stall || stall.status !== "active") {
+    return { error: "This stall isn't available right now." };
+  }
+  if (stall.availability === "closed") {
+    return { error: "This stall is currently closed and isn't taking orders." };
+  }
+  if (stall.availability === "opening_soon") {
+    return { error: "This stall hasn't opened yet — please check back soon." };
+  }
+
   const itemIds = items.map((i) => i.menuItemId);
   const { data: dbItems, error: fetchError } = await admin
     .from("menu_items")

@@ -112,6 +112,7 @@ export default async function HomePage({
                 name={stall.name}
                 category={stall.category}
                 logoUrl={stall.logo_url}
+                availability={stall.availability ?? "open"}
                 index={i}
               />
             ))}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listActiveStalls } from "@/services/browse.service";
+import { StallAvailabilityBadge } from "@/components/customer/StallAvailabilityBadge";
 
 export default async function StallsPage({
   searchParams,
@@ -38,7 +39,10 @@ export default async function StallsPage({
                 <div className="h-16 w-16 rounded-lg bg-neutral-100" />
               )}
               <div>
-                <p className="font-medium">{stall.name}</p>
+                <div className="flex items-center gap-2">
+                  <p className="font-medium">{stall.name}</p>
+                  <StallAvailabilityBadge availability={stall.availability ?? "open"} />
+                </div>
                 <p className="text-xs text-neutral-500">{stall.category}</p>
                 <p className="mt-1 text-xs text-neutral-400 line-clamp-2">{stall.description}</p>
               </div>

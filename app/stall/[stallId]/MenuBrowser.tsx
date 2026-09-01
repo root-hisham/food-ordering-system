@@ -3,17 +3,26 @@
 import { useMemo } from "react";
 import { useCartStore } from "@/store/cart-store";
 import type { MenuCategory, MenuItem } from "@/types/menu";
+import type { StallAvailability } from "@/types/stall";
+
+const UNAVAILABLE_LABEL: Record<StallAvailability, string> = {
+  open: "Stall closed", // shouldn't hit this case while canOrder is true, kept as a safe fallback
+  opening_soon: "Opening soon",
+  closed: "Stall closed",
+};
 
 export function MenuBrowser({
   stallId,
   stallName,
-  stallActive,
+  canOrder,
+  availability,
   categories,
   items,
 }: {
   stallId: string;
   stallName: string;
-  stallActive: boolean;
+  canOrder: boolean;
+  availability: StallAvailability;
   categories: MenuCategory[];
   items: MenuItem[];
 }) {
@@ -56,6 +65,13 @@ export function MenuBrowser({
 
   return (
     <div className="space-y-6">
+      {!canOrder && (
+        <div className="rounded-xl border border-neutral-200 bg-neutral-100 px-4 py-3 text-sm text-neutral-600">
+          {availability === "opening_soon"
+            ? "This stall hasn't opened yet. You can browse the menu, but ordering isn't available until it opens."
+            : "This stall is closed right now. You can browse the menu, but ordering isn't available."}
+        </div>
+      )}
       {[...grouped.entries()].map(([categoryId, categoryItems]) => {
         const category = categories.find((c) => c.id === categoryId);
         return (
@@ -80,8 +96,10 @@ export function MenuBrowser({
                         <p className="font-semibold">₹{Number(item.price).toFixed(2)}</p>
                         {!item.is_available ? (
                           <span className="text-xs font-medium text-neutral-400">Currently Unavailable</span>
-                        ) : !stallActive ? (
-                          <span className="text-xs font-medium text-neutral-400">Stall closed</span>
+                        ) : !canOrder ? (
+                          <span className="text-xs font-medium text-neutral-400">
+                            {UNAVAILABLE_LABEL[availability]}
+                          </span>
                         ) : qty === 0 ? (
                           <button
                             onClick={() => handleAdd(item)}
