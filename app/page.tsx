@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, SlidersHorizontal, Search, Sparkles } from "lucide-react";
+import { Bell, SlidersHorizontal, Search, Sparkles, Store, UtensilsCrossed } from "lucide-react";
 import { listActiveStalls } from "@/services/browse.service";
 import { listCategories } from "@/services/category.service";
 import { listActiveAnnouncements } from "@/services/announcement.service";
@@ -30,7 +30,7 @@ export default async function HomePage({
     : undefined;
 
   return (
-    <main className="pb-24">
+    <main className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-rose-50 bg-[length:200%_200%] pb-24 animate-gradient-shift">
       {/* Hero header */}
       <div className="relative overflow-hidden bg-gradient-to-br from-orange-100 via-orange-50 to-amber-50 px-4 pb-8 pt-6">
         <Sparkles className="absolute right-24 top-6 h-5 w-5 animate-float text-amber-400" />
@@ -90,7 +90,7 @@ export default async function HomePage({
         {/* Popular stalls */}
         <div className="mb-3 mt-8 flex items-center justify-between">
           <h2 className="text-lg font-bold text-neutral-900">
-            {activeCategoryName ? activeCategoryName : "Popular Stalls"} <span className="ml-0.5">🔥</span>
+            {activeCategoryName ? activeCategoryName : "Popular Stalls"}
           </h2>
           <Link href="/stalls" className="text-sm font-semibold text-brand-600 hover:text-brand-700">
             View all
@@ -104,16 +104,40 @@ export default async function HomePage({
             </p>
           </div>
         ) : (
-          <PopularStallsCarousel3D
-            stalls={stalls.map((s) => ({
-              id: s.id,
-              name: s.name,
-              category: s.category,
-              logoUrl: s.logo_url,
-              availability: s.availability ?? "open",
-            }))}
-          />
+          <>
+            <PopularStallsCarousel3D
+              stalls={stalls.map((s) => ({
+                id: s.id,
+                name: s.name,
+                category: s.category,
+                logoUrl: s.logo_url,
+                availability: s.availability ?? "open",
+              }))}
+            />
+
+            {/* List-view CTA below the swipe carousel */}
+            <div className="mt-6 flex justify-center">
+              <Link
+                href="/stalls"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-orange-200/70 transition-transform hover:scale-105 active:scale-95"
+              >
+                <Store size={16} />
+                View All Stalls
+              </Link>
+            </div>
+          </>
         )}
+
+        {/* Site footer */}
+        <footer className="mt-10 border-t border-orange-200/50 pt-6 text-center">
+          <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm">
+            <UtensilsCrossed size={19} className="text-brand-600" />
+          </div>
+          <p className="text-sm font-semibold text-neutral-700">Food Court</p>
+          <p className="mx-auto mt-1 max-w-xs text-xs leading-relaxed text-neutral-400">
+            Fresh meals, made to order, from every stall under one roof.
+          </p>
+        </footer>
       </div>
     </main>
   );

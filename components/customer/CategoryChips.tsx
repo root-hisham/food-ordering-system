@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Grid2x2 } from "lucide-react";
+import { Grid2x2, Utensils } from "lucide-react";
 import type { Category } from "@/types/category";
 
 export function CategoryChips({
@@ -46,7 +46,7 @@ export function CategoryChips({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={c.icon_url} alt={c.name} className="h-full w-full object-cover" />
               ) : (
-                <span className="text-2xl">🍽️</span>
+                <Utensils size={22} className={active ? "text-brand-500" : "text-neutral-300"} />
               )}
             </div>
             <span className={`max-w-[4rem] truncate text-xs font-medium ${active ? "text-brand-600" : "text-neutral-500"}`}>

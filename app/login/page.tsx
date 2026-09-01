@@ -35,8 +35,14 @@ export default function LoginPage({ searchParams }: { searchParams: { redirect?:
   }, [state.success, router, redirectTo]);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-pink-100 via-neutral-100 to-neutral-200 px-6">
-      <div className="w-full max-w-sm rounded-2xl border border-pink-100 bg-white/90 p-8 shadow-xl shadow-pink-100 backdrop-blur">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-pink-100 via-orange-50 to-amber-100 bg-[length:200%_200%] px-6 animate-gradient-shift">
+      <div className="pointer-events-none absolute -left-10 top-10 h-40 w-40 rounded-full bg-pink-200/40 blur-3xl animate-float" />
+      <div
+        className="pointer-events-none absolute -right-10 bottom-10 h-48 w-48 rounded-full bg-orange-200/40 blur-3xl animate-float"
+        style={{ animationDelay: "1.5s" }}
+      />
+
+      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-pink-100 bg-white/90 p-8 shadow-xl shadow-pink-100 backdrop-blur">
         <h1 className="mb-6 text-2xl font-semibold text-neutral-800">Welcome back</h1>
 
         <GoogleSignInButton redirectTo={redirectTo} />

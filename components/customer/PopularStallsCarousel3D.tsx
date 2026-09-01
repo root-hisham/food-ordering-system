@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { UtensilsCrossed } from "lucide-react";
 import type { StallAvailability } from "@/types/stall";
 
 interface CarouselStall {
@@ -32,10 +33,10 @@ const CARD_SHADES = [
 
 const WINDOW = 3;
 const ROTATE_DEG = 22;
-const SPACING_PX = 78;
-const DEPTH_PX = 60;
-const DRAG_TO_INDEX = 90;
-const SWIPE_COMMIT_PX = 40;
+const SPACING_PX = 104;
+const DEPTH_PX = 80;
+const DRAG_TO_INDEX = 120;
+const SWIPE_COMMIT_PX = 45;
 // Bouncy "back out" easing — overshoots slightly then settles, for
 // the bubble/spring feel. Pure CSS, no animation library needed.
 const BOUNCE_EASING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
@@ -49,8 +50,12 @@ export function PopularStallsCarousel3D({ stalls }: { stalls: CarouselStall[] })
   const clampIndex = (i: number) => Math.max(0, Math.min(stalls.length - 1, i));
 
   const onPointerDown = (e: React.PointerEvent) => {
+    // Prevent the browser's native image-drag / text-selection gesture from
+    // hijacking the pointer sequence — this is what made swiping silently
+    // fail with a mouse on desktop (touch has no such native drag).
+    e.preventDefault();
     dragState.current = { startX: e.clientX, dragging: true, moved: false };
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -58,7 +63,9 @@ export function PopularStallsCarousel3D({ stalls }: { stalls: CarouselStall[] })
     if (!state?.dragging) return;
     const delta = e.clientX - state.startX;
     if (Math.abs(delta) > 6) state.moved = true;
-    setDragOffset(-delta / DRAG_TO_INDEX);
+    // Card offset now tracks the same sign as the finger/cursor movement,
+    // so dragging left moves the carousel left (previously inverted).
+    setDragOffset(delta / DRAG_TO_INDEX);
   };
 
   const endDrag = (e: React.PointerEvent) => {
@@ -97,7 +104,7 @@ export function PopularStallsCarousel3D({ stalls }: { stalls: CarouselStall[] })
       </div>
 
       <div
-        className="relative h-56 select-none overflow-hidden [perspective:1000px] [touch-action:pan-y]"
+        className="relative h-64 select-none overflow-hidden [perspective:1000px] [touch-action:pan-y]"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
@@ -119,7 +126,8 @@ export function PopularStallsCarousel3D({ stalls }: { stalls: CarouselStall[] })
               <div
                 key={stall.id}
                 onClick={() => handleCardClick(stall.id)}
-                className={`absolute left-1/2 top-1/2 w-36 cursor-pointer rounded-[28px] border border-white/60 bg-gradient-to-br ${shade} p-4 text-center shadow-lg [backface-visibility:hidden] [will-change:transform]`}
+                onDragStart={(e) => e.preventDefault()}
+                className={`absolute left-1/2 top-1/2 w-48 cursor-pointer rounded-[28px] border border-white/60 bg-gradient-to-br ${shade} p-5 text-center shadow-lg [backface-visibility:hidden] [will-change:transform]`}
                 style={{
                   transform: `translate(-50%, -50%) translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`,
                   transition: isDragging ? "none" : `transform 450ms ${BOUNCE_EASING}, opacity 300ms ease-out`,
@@ -132,14 +140,15 @@ export function PopularStallsCarousel3D({ stalls }: { stalls: CarouselStall[] })
                   <img
                     src={stall.logoUrl}
                     alt={stall.name}
-                    className="mx-auto h-16 w-16 rounded-full border-2 border-white object-cover shadow-sm"
+                    draggable={false}
+                    className="mx-auto h-20 w-20 rounded-full border-2 border-white object-cover shadow-sm"
                   />
                 ) : (
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 border-white bg-white/70 text-2xl shadow-sm">
-                    🍽️
+                  <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border-2 border-white bg-white/70 shadow-sm">
+                    <UtensilsCrossed size={26} className="text-neutral-400" />
                   </div>
                 )}
-                <p className="mt-2 truncate font-semibold text-neutral-800">{stall.name}</p>
+                <p className="mt-2 truncate text-base font-semibold text-neutral-800">{stall.name}</p>
                 {stall.category && <p className="truncate text-xs text-neutral-500">{stall.category}</p>}
                 <span
                   className={`mt-2 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${BADGE_STYLES[stall.availability]}`}
