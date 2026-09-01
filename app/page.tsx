@@ -7,7 +7,7 @@ import { listCustomerActiveOrders } from "@/services/customer-order.service";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { CategoryChips } from "@/components/customer/CategoryChips";
 import { AnnouncementCarousel } from "@/components/customer/AnnouncementCarousel";
-import { StallCard } from "@/components/customer/StallCard";
+import { PopularStallsCarousel3D } from "@/components/customer/PopularStallsCarousel3D";
 
 export default async function HomePage({
   searchParams,
@@ -104,19 +104,15 @@ export default async function HomePage({
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {stalls.map((stall, i) => (
-              <StallCard
-                key={stall.id}
-                id={stall.id}
-                name={stall.name}
-                category={stall.category}
-                logoUrl={stall.logo_url}
-                availability={stall.availability ?? "open"}
-                index={i}
-              />
-            ))}
-          </div>
+          <PopularStallsCarousel3D
+            stalls={stalls.map((s) => ({
+              id: s.id,
+              name: s.name,
+              category: s.category,
+              logoUrl: s.logo_url,
+              availability: s.availability ?? "open",
+            }))}
+          />
         )}
       </div>
     </main>
