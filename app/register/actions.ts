@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { customerRegisterSchema } from "@/lib/validation/auth";
 import { mobileToSyntheticEmail } from "@/lib/auth/mobile-email";
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
@@ -69,5 +70,8 @@ export async function registerCustomer(
     return { error: "Account created — please log in." };
   }
 
-  return { success: true };
+  // Redirect from inside the action so Next.js invalidates the router cache
+  // properly before navigating — see the same fix in app/login/actions.ts.
+  const redirectTo = formData.get("redirectTo");
+  redirect(typeof redirectTo === "string" && redirectTo ? redirectTo : "/post-login");
 }

@@ -33,16 +33,11 @@ const config: Config = {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-6px)" },
         },
-        "gradient-shift": {
-          "0%, 100%": { backgroundPosition: "0% 50%" },
-          "50%": { backgroundPosition: "100% 50%" },
-        },
       },
       animation: {
         "fade-in-up": "fade-in-up 0.5s ease-out both",
         "fade-in": "fade-in 0.6s ease-out both",
         float: "float 3s ease-in-out infinite",
-        "gradient-shift": "gradient-shift 12s ease-in-out infinite",
       },
     },
   },

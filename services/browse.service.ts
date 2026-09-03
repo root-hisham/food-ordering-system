@@ -4,7 +4,7 @@ export async function listActiveStalls(search?: string, categoryId?: string) {
   const supabase = createClient();
   let query = supabase
     .from("stalls")
-    .select("id, name, description, category, category_id, logo_url, status, availability")
+    .select("id, name, description, category, category_id, logo_url, status")
     .eq("status", "active")
     .order("name");
 
@@ -20,7 +20,7 @@ export async function getStallWithMenu(stallId: string) {
 
   const { data: stall } = await supabase
     .from("stalls")
-    .select("id, name, description, category, logo_url, status, availability")
+    .select("id, name, description, category, logo_url, status")
     .eq("id", stallId)
     .single();
 

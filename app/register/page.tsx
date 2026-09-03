@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
 import { useFormState, useFormStatus } from "react-dom";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { registerCustomer, type RegisterState } from "./actions";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
@@ -24,25 +22,11 @@ function SubmitButton() {
 
 export default function RegisterPage({ searchParams }: { searchParams: { redirect?: string } }) {
   const [state, formAction] = useFormState(registerCustomer, initialState);
-  const router = useRouter();
   const redirectTo = searchParams.redirect;
 
-  useEffect(() => {
-    if (state.success) {
-      router.push(redirectTo || "/post-login");
-      router.refresh();
-    }
-  }, [state.success, router, redirectTo]);
-
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-pink-100 via-orange-50 to-amber-100 bg-[length:200%_200%] px-6 animate-gradient-shift">
-      <div className="pointer-events-none absolute -left-10 top-10 h-40 w-40 rounded-full bg-pink-200/40 blur-3xl animate-float" />
-      <div
-        className="pointer-events-none absolute -right-10 bottom-10 h-48 w-48 rounded-full bg-orange-200/40 blur-3xl animate-float"
-        style={{ animationDelay: "1.5s" }}
-      />
-
-      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-pink-100 bg-white/90 p-8 shadow-xl shadow-pink-100 backdrop-blur">
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-pink-100 via-neutral-100 to-neutral-200 px-6">
+      <div className="w-full max-w-sm rounded-2xl border border-pink-100 bg-white/90 p-8 shadow-xl shadow-pink-100 backdrop-blur">
         <h1 className="mb-6 text-2xl font-semibold text-neutral-800">Create your account</h1>
 
         <GoogleSignInButton redirectTo={redirectTo} />
@@ -54,6 +38,7 @@ export default function RegisterPage({ searchParams }: { searchParams: { redirec
         </div>
 
         <form action={formAction} className="space-y-4">
+          <input type="hidden" name="redirectTo" value={redirectTo ?? ""} />
           <div>
             <label className="mb-1 block text-sm font-medium text-neutral-600">Full name</label>
             <input

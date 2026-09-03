@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireRole } from "@/lib/auth/session";
 import { getOwnerStallId } from "@/lib/auth/stall";
 import { listMenuItems } from "@/services/menu.service";
-import { MenuItemRow } from "./MenuItemRow";
+import { MenuList } from "./MenuList";
 
 export default async function OwnerMenuPage() {
   const profile = await requireRole(["stall_owner"]);
@@ -16,12 +16,14 @@ export default async function OwnerMenuPage() {
         <div className="flex gap-2">
           <Link
             href="/owner/categories"
+            data-ripple
             className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium hover:bg-neutral-50"
           >
             Categories
           </Link>
           <Link
             href="/owner/menu/new"
+            data-ripple
             className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
           >
             + New Item
@@ -29,15 +31,7 @@ export default async function OwnerMenuPage() {
         </div>
       </div>
 
-      {items.length === 0 ? (
-        <p className="text-neutral-500">No menu items yet.</p>
-      ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {items.map((item: any) => (
-            <MenuItemRow key={item.id} item={item} />
-          ))}
-        </div>
-      )}
+      <MenuList items={items} />
     </div>
   );
 }

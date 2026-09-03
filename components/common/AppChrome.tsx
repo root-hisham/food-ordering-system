@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { BottomNav } from "./BottomNav";
 import { StickyCartBar } from "../customer/StickyCartBar";
 import { OrderRealtimeListener } from "../customer/OrderRealtimeListener";
+import { CartIdentityGuard } from "./CartIdentityGuard";
+import { TouchRipple } from "./TouchRipple";
 import { unlockAudio } from "@/lib/notifications/sound";
 
 const HIDE_CHROME_PREFIXES = ["/admin", "/owner", "/login", "/register", "/post-login"];
@@ -34,11 +36,19 @@ export function AppChrome({
   }, []);
 
   if (hideChrome) {
-    return <>{children}</>;
+    return (
+      <>
+        <CartIdentityGuard customerId={customerId} />
+        <TouchRipple />
+        {children}
+      </>
+    );
   }
 
   return (
     <div className="pb-16">
+      <CartIdentityGuard customerId={customerId} />
+      <TouchRipple />
       {children}
       {customerId && <OrderRealtimeListener userId={customerId} />}
       <StickyCartBar />

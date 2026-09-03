@@ -8,16 +8,12 @@ function requiredRoleForPath(pathname: string): "admin" | "stall_owner" | null {
 }
 
 export async function middleware(request: NextRequest) {
-  const { response, supabase } = await updateSession(request);
+  const { response, supabase, user } = await updateSession(request);
 
   const requiredRole = requiredRoleForPath(request.nextUrl.pathname);
   if (!requiredRole) {
     return response;
   }
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   if (!user) {
     return NextResponse.redirect(new URL("/login", request.url));

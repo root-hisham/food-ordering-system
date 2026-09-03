@@ -17,3 +17,58 @@ body {
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+
+/* Global tap/click "bubble" ripple */
+.touch-ripple-bubble {
+  position: fixed;
+  border-radius: 9999px;
+  background: rgb(249 115 22 / 0.35);
+  transform: scale(1);
+  animation: touch-ripple-pop 550ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes touch-ripple-pop {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  60% {
+    opacity: 0.28;
+  }
+  100% {
+    transform: scale(9);
+    opacity: 0;
+  }
+}
+
+/* 3D stall carousel */
+.stall-carousel-viewport {
+  perspective: 1200px;
+}
+.stall-carousel-track {
+  transform-style: preserve-3d;
+}
+
+/* Simple skeleton shimmer for loading states */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: rgb(229 229 229);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(255 255 255 / 0.55),
+    transparent
+  );
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}

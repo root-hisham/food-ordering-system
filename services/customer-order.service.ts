@@ -8,86 +8,6 @@ export interface PlaceOrderItem {
   quantity: number;
 }
 
-/**
- * Shared guard: re-checked here (not just in the UI) because the
- * cart/checkout page could be stale — the owner may have flipped
- * to closed after the customer opened the menu. Checks status
- * (admin active/inactive) too, since a fully-inactive stall should
- * never take orders either.
- */
-async function assertStallAcceptingOrders(stallId: string) {
-  const supabase = createClient();
-  const { data: stall } = await supabase
-    .from("stalls")
-    .select("status, availability")
-    .eq("id", stallId)
-    .single();
-
-  if (!stall || stall.status !== "active") {
-    return "This stall isn't available right now.";
-  }
-  if (stall.availability === "closed") {
-    return "This stall is currently closed and isn't taking orders.";
-  }
-  if (stall.availability === "opening_soon") {
-    return "This stall hasn't opened yet — please check back soon.";
-  }
-  return null;
-}
-
-export async function placeOrder(customerId: string, stallId: string, items: PlaceOrderItem[]) {
-  const supabase = createClient();
-
-  const availabilityError = await assertStallAcceptingOrders(stallId);
-  if (availabilityError) return { error: availabilityError };
-
-  const itemIds = items.map((i) => i.menuItemId);
-  const { data: dbItems, error: fetchError } = await supabase
-    .from("menu_items")
-    .select("id, name, price, is_available, stall_id")
-    .in("id", itemIds);
-
-  if (fetchError || !dbItems || dbItems.length !== items.length) {
-    return { error: "Some items could not be found. Please refresh your cart." };
-  }
-
-  const unavailable = dbItems.find((i) => !i.is_available || i.stall_id !== stallId);
-  if (unavailable) {
-    return { error: `"${unavailable.name}" is no longer available.` };
-  }
-
-  const priceById = new Map(dbItems.map((i) => [i.id, Number(i.price)]));
-  const total = items.reduce((sum, i) => sum + (priceById.get(i.menuItemId) ?? 0) * i.quantity, 0);
-
-  const { data: order, error: orderError } = await supabase
-    .from("orders")
-    .insert({ customer_id: customerId, stall_id: stallId, total, status: "pending" })
-    .select()
-    .single();
-
-  if (orderError || !order) {
-    return { error: orderError?.message ?? "Could not place order." };
-  }
-
-  const orderItems = items.map((i) => ({
-    order_id: order.id,
-    menu_item_id: i.menuItemId,
-    item_name: i.name,
-    unit_price: priceById.get(i.menuItemId) ?? i.price,
-    quantity: i.quantity,
-    subtotal: (priceById.get(i.menuItemId) ?? i.price) * i.quantity,
-  }));
-
-  const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
-
-  if (itemsError) {
-    await supabase.from("orders").delete().eq("id", order.id);
-    return { error: "Could not save order items. Please try again." };
-  }
-
-  return { order };
-}
-
 export async function listCustomerActiveOrders(customerId: string) {
   const supabase = createClient();
   const { data } = await supabase
@@ -191,9 +111,6 @@ export async function placeOrderAsCustomer(
   contact: PlaceOrderContact
 ) {
   const supabase = createClient();
-
-  const availabilityError = await assertStallAcceptingOrders(stallId);
-  if (availabilityError) return { error: availabilityError };
 
   const itemIds = items.map((i) => i.menuItemId);
   const { data: dbItems, error: fetchError } = await supabase

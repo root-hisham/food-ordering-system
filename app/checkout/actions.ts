@@ -35,8 +35,19 @@ export async function placeOrderAction(
     return { orderId: result.order.id };
   }
 
-  // No session (or a non-customer role, which shouldn't reach checkout
-  // anyway) — treat as a guest order.
+  if (profile && profile.role !== "customer") {
+    // A session exists but it's not a customer — almost always means the
+    // browser's signed-in account changed since this page loaded (e.g. a
+    // different tab logged in as an owner/admin). Cookies are shared across
+    // every tab, so silently placing this as a guest order would hide it
+    // from the customer's real account. Make them refresh and re-check.
+    return {
+      error:
+        "Your session changed (maybe you signed in elsewhere in this browser). Please refresh the page and try again.",
+    };
+  }
+
+  // No session at all — genuine guest checkout.
   const result = await placeGuestOrder(stallId, items, { contactName, contactMobile, tableNumber });
   if (result.error || !result.order) {
     return { error: result.error ?? "Could not place order." };
