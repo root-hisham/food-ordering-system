@@ -90,7 +90,7 @@ export default async function HomePage({
         {/* Popular stalls */}
         <div className="mb-3 mt-8 flex items-center justify-between">
           <h2 className="text-lg font-bold text-neutral-900">
-            {activeCategoryName ? activeCategoryName : "Popular Stalls"} <span className="ml-0.5">🔥</span>
+            {activeCategoryName ? activeCategoryName : "Popular Stalls"}
           </h2>
           <Link href="/stalls" className="text-sm font-semibold text-brand-600 hover:text-brand-700">
             View all

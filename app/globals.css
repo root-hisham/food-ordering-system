@@ -43,6 +43,7 @@ body {
 /* 3D stall carousel */
 .stall-carousel-viewport {
   perspective: 1200px;
+  touch-action: pan-y;
 }
 .stall-carousel-track {
   transform-style: preserve-3d;

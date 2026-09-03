@@ -76,7 +76,7 @@ export function StallCarousel3D({ stalls }: { stalls: Stall[] }) {
         onPointerLeave={endDrag}
         onPointerCancel={endDrag}
       >
-        <div className="stall-carousel-track relative flex h-52 items-center justify-center">
+        <div className="stall-carousel-track relative flex h-60 items-center justify-center">
           {stalls.map((stall, i) => {
             const offset = i - activeIndex - dragFraction;
             const abs = Math.abs(offset);
@@ -108,20 +108,20 @@ export function StallCarousel3D({ stalls }: { stalls: Stall[] }) {
                     ? "none"
                     : "transform 380ms cubic-bezier(0.22,1,0.36,1), opacity 380ms ease",
                 }}
-                className="absolute left-1/2 top-1/2 flex w-40 shrink-0 flex-col items-center gap-2 rounded-2xl border border-neutral-200 bg-white p-4 text-center shadow-md"
+                className="absolute left-1/2 top-1/2 flex w-48 shrink-0 flex-col items-center gap-2 rounded-2xl border border-neutral-200 bg-white p-4 text-center shadow-md"
               >
-                <div className="relative h-16 w-16 overflow-hidden rounded-xl bg-gradient-to-br from-brand-100 to-brand-50">
+                <div className="relative h-20 w-20 overflow-hidden rounded-xl bg-gradient-to-br from-brand-100 to-brand-50 p-1.5">
                   {stall.logoUrl ? (
                     <Image
                       src={stall.logoUrl}
                       alt={stall.name}
                       fill
-                      sizes="64px"
-                      className="object-cover"
+                      sizes="80px"
+                      className="rounded-lg object-contain"
                       draggable={false}
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-2xl">
+                    <div className="flex h-full w-full items-center justify-center text-3xl">
                       🍽️
                     </div>
                   )}
