@@ -20,14 +20,23 @@ function SubmitButton() {
   );
 }
 
-export default function LoginPage({ searchParams }: { searchParams: { redirect?: string; error?: string } }) {
+const NOTICE_MESSAGES: Record<string, string> = {
+  device_removed: "You were signed out because this device's access was removed or expired. Please log in again.",
+};
+
+export default function LoginPage({ searchParams }: { searchParams: { redirect?: string; error?: string; notice?: string } }) {
   const [state, formAction] = useFormState(login, initialState);
   const redirectTo = searchParams.redirect;
+  const notice = searchParams.notice ? NOTICE_MESSAGES[searchParams.notice] : undefined;
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-pink-100 via-neutral-100 to-neutral-200 px-6">
       <div className="w-full max-w-sm rounded-2xl border border-pink-100 bg-white/90 p-8 shadow-xl shadow-pink-100 backdrop-blur">
         <h1 className="mb-6 text-2xl font-semibold text-neutral-800">Welcome back</h1>
+
+        {notice && (
+          <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-700">{notice}</p>
+        )}
 
         <GoogleSignInButton redirectTo={redirectTo} />
 

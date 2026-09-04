@@ -103,10 +103,33 @@ export async function getStallById(stallId: string) {
   const supabase = createClient();
   const { data } = await supabase
     .from("stalls")
-    .select("id, name, category, category_id, description, logo_url, status")
+    .select("id, name, category, category_id, description, logo_url, status, device_limit")
     .eq("id", stallId)
     .single();
   return data;
+}
+
+/**
+ * Single-stall owner lookup for the admin "Devices" page — the
+ * multi-stall version of this join already exists in
+ * listStallsWithOwners() above, but that fetches every stall's
+ * owner at once, which is wasteful for a page that only needs one.
+ */
+export async function getStallOwnerProfile(stallId: string) {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("stall_owners")
+    .select("id, profiles(full_name, mobile_number)")
+    .eq("stall_id", stallId)
+    .maybeSingle();
+
+  if (!data) return null;
+  const profile = (data as any).profiles;
+  return {
+    ownerId: data.id as string,
+    fullName: (profile?.full_name as string | undefined) ?? null,
+    mobileNumber: (profile?.mobile_number as string | undefined) ?? null,
+  };
 }
 
 export async function updateStall(stallId: string, input: UpdateStallInput) {

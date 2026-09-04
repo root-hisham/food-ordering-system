@@ -7,7 +7,7 @@ import { listCustomerActiveOrders } from "@/services/customer-order.service";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { CategoryChips } from "@/components/customer/CategoryChips";
 import { AnnouncementCarousel } from "@/components/customer/AnnouncementCarousel";
-import { StallCarousel3D } from "@/components/customer/StallCarousel3D";
+import { StallGrid } from "@/components/customer/StallGrid";
 
 export default async function HomePage({
   searchParams,
@@ -104,12 +104,13 @@ export default async function HomePage({
             </p>
           </div>
         ) : (
-          <StallCarousel3D
+          <StallGrid
             stalls={stalls.map((s) => ({
               id: s.id,
               name: s.name,
               category: s.category,
               logoUrl: s.logo_url,
+              availability: s.availability,
             }))}
           />
         )}

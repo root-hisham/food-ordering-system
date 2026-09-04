@@ -57,6 +57,9 @@ export default async function AdminStallsPage() {
                       <Link href={`/admin/stalls/${stall.id}/edit`} className="mr-3 text-sm font-medium text-neutral-600 hover:text-brand-600">
                         Edit
                       </Link>
+                      <Link href={`/admin/stalls/${stall.id}/devices`} className="mr-3 text-sm font-medium text-neutral-600 hover:text-brand-600">
+                        Devices
+                      </Link>
                       <ToggleStallStatusButton stallId={stall.id} status={stall.status} />
                     </td>
                 </tr>

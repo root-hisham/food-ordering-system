@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { loginSchema } from "@/lib/validation/auth";
 import { mobileToSyntheticEmail } from "@/lib/auth/mobile-email";
 import { createClient } from "@/lib/supabase/server";
+import { createOwnerDeviceSession } from "@/lib/auth/device-session";
 
 export type LoginState = { error?: string; success?: boolean };
 
@@ -28,10 +29,35 @@ export async function login(
     : identifier.trim();
 
   const supabase = createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-  if (error) {
+  if (error || !data.user) {
     return { error: "Incorrect mobile number/email or password." };
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", data.user.id)
+    .single();
+
+  // Stall owners get an extra device-limited session layered on top
+  // of the normal Supabase session — enforced here, BEFORE the login
+  // is allowed to stick, not as an afterthought once they're already in.
+  if (profile?.role === "stall_owner") {
+    const { data: ownerRow } = await supabase
+      .from("stall_owners")
+      .select("stall_id")
+      .eq("id", data.user.id)
+      .single();
+
+    if (ownerRow?.stall_id) {
+      const result = await createOwnerDeviceSession(data.user.id, ownerRow.stall_id);
+      if (result.error) {
+        await supabase.auth.signOut();
+        return { error: result.error };
+      }
+    }
   }
 
   // Redirect from inside the action (not via a client-side router.push after

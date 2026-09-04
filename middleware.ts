@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { updateSession } from "@/lib/supabase/middleware";
+import { updateSession, isOwnerDeviceSessionValid } from "@/lib/supabase/middleware";
 
 function requiredRoleForPath(pathname: string): "admin" | "stall_owner" | null {
   if (pathname.startsWith("/admin")) return "admin";
@@ -27,6 +27,20 @@ export async function middleware(request: NextRequest) {
 
   if (!profile || profile.role !== requiredRole) {
     return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // Extra layer, stall owners only: the device-limited session
+  // created at login. This is the actual "no bypass" enforcement
+  // point — it runs before every /owner request reaches a page or a
+  // server action, so an admin removing a device takes effect
+  // immediately, not on the owner's next full page load.
+  if (requiredRole === "stall_owner") {
+    const sessionOk = await isOwnerDeviceSessionValid(request, user.id);
+    if (!sessionOk) {
+      const logoutUrl = new URL("/auth/force-logout", request.url);
+      logoutUrl.searchParams.set("reason", "device_removed");
+      return NextResponse.redirect(logoutUrl);
+    }
   }
 
   return response;
