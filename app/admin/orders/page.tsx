@@ -56,7 +56,12 @@ export default async function AdminOrdersPage({
                 <tr key={o.id} className="border-t border-neutral-100">
                   <td className="px-4 py-3 font-mono text-xs">{o.orderNumber}</td>
                   <td className="px-4 py-3">{o.stallName}</td>
-                  <td className="px-4 py-3">{o.customerName}</td>
+                  <td className="px-4 py-3">
+                    {o.customerName}
+                    {o.customerMobile !== "—" && (
+                      <span className="block text-xs text-neutral-500">{o.customerMobile}</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3">₹{o.total.toFixed(2)}</td>
                   <td className="px-4 py-3 capitalize">{o.status}</td>
                   <td className="px-4 py-3">

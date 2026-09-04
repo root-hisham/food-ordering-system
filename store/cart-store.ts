@@ -68,7 +68,7 @@ export const useCartStore = create<CartState>()(
       incrementItem: (menuItemId) =>
         set((s) => ({
           items: s.items.map((i) =>
-            i.menuItemId === menuItemId ? { ...i, quantity: i.quantity - 1 } : i
+            i.menuItemId === menuItemId ? { ...i, quantity: i.quantity + 1 } : i
           ),
         })),
       decrementItem: (menuItemId) =>

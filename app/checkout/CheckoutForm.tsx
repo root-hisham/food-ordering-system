@@ -42,7 +42,8 @@ export function CheckoutForm({
     );
   }
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = (e: React.FormEvent) => {
+    e.preventDefault();
     setError("");
     startTransition(async () => {
       const result = await placeOrderAction(
@@ -74,7 +75,7 @@ export function CheckoutForm({
   };
 
   return (
-    <div className="space-y-4">
+    <form onSubmit={handlePlaceOrder} className="space-y-4">
       {continuingAsGuest && (
         <p className="rounded-xl bg-pink-50 p-3 text-xs text-pink-700">
           Ordering as a guest — save the link on the next page to track your order, since it won&apos;t be saved to any account.
@@ -139,12 +140,12 @@ export function CheckoutForm({
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <button
-        onClick={handlePlaceOrder}
+        type="submit"
         disabled={isPending}
         className="w-full rounded-xl bg-gradient-to-r from-pink-500 to-orange-500 py-3 font-medium text-white disabled:opacity-60"
       >
         {isPending ? "Placing order..." : "Place Order"}
       </button>
-    </div>
+    </form>
   );
 }

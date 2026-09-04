@@ -11,7 +11,9 @@ export async function listOrdersForAdmin(filters: AdminOrderFilters = {}) {
 
   let query = supabase
     .from("orders")
-    .select("id, order_number, status, total, created_at, customer_id, stalls(name)")
+    .select(
+      "id, order_number, status, total, created_at, customer_id, contact_name, contact_mobile, stalls(name)"
+    )
     .order("created_at", { ascending: false })
     .limit(100);
 
@@ -21,15 +23,28 @@ export async function listOrdersForAdmin(filters: AdminOrderFilters = {}) {
   const { data: orders, error } = await query;
   if (error || !orders) return [];
 
-  const customerIds = [...new Set(orders.map((o: any) => o.customer_id))];
-  const { data: profiles } = await supabase.from("profiles").select("id, full_name").in("id", customerIds);
+  // Registered customers who checked out before this field existed won't
+  // have contact_name saved on the order — fall back to their profile name
+  // for those older rows. Every order since guest checkout shipped
+  // (registered or guest) always has contact_name, so this covers all
+  // current traffic and only backfills historical gaps.
+  const missingProfileIds = [
+    ...new Set(
+      orders.filter((o: any) => o.customer_id && !o.contact_name).map((o: any) => o.customer_id)
+    ),
+  ];
+  const { data: profiles } =
+    missingProfileIds.length > 0
+      ? await supabase.from("profiles").select("id, full_name").in("id", missingProfileIds)
+      : { data: [] };
   const nameById = new Map((profiles ?? []).map((p) => [p.id, p.full_name]));
 
   return orders.map((o: any) => ({
     id: o.id,
     orderNumber: o.order_number,
     stallName: o.stalls?.name ?? "—",
-    customerName: nameById.get(o.customer_id) ?? "—",
+    customerName: o.contact_name ?? nameById.get(o.customer_id) ?? "—",
+    customerMobile: o.contact_mobile ?? "—",
     status: o.status as OrderStatus,
     total: Number(o.total),
     createdAt: o.created_at,
